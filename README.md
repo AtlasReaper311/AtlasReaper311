@@ -15,7 +15,7 @@ Infrastructure, tooling, and live environments — built in public.
 Languages    Python · TypeScript · C++ · HTML/CSS
 Platforms    Cloudflare · Docker · GitHub Actions
 Game dev     Unreal Engine 5 · MetaSounds · Blueprints
-Interests    RAG pipelines · local LLMs · procedural audio
+Interests    RAG pipelines · Local LLMs · Procedural Audio
 ```
 
 ## atlas-systems.uk
