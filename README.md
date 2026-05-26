@@ -1,16 +1,27 @@
-## Hi there 👋
+# Atlas Systems
 
-<!--
-**AtlasReaper311/AtlasReaper311** is a ✨ _special_ ✨ repository because its `README.md` (this file) appears on your GitHub profile.
+Infrastructure, tooling, and live environments — built in public.
 
-Here are some ideas to get you started:
+## Active infrastructure
 
-- 🔭 I’m currently working on ...
-- 🌱 I’m currently learning ...
-- 👯 I’m looking to collaborate on ...
-- 🤔 I’m looking for help with ...
-- 💬 Ask me about ...
-- 📫 How to reach me: ...
-- 😄 Pronouns: ...
-- ⚡ Fun fact: ...
--->
+| Repo | Purpose | Status |
+|------|---------|--------|
+| [atlas-doc-viewer](https://github.com/AtlasReaper311/atlas-doc-viewer) | Secure static document wrapper | Live |
+| [atlas-cv](https://github.com/AtlasReaper311/atlas-cv) | CV → domain routing | Live |
+| [atlas-proxy](https://github.com/AtlasReaper311/atlas-proxy) | TypeScript streaming proxy | In progress |
+
+## Stack
+Languages    Python · TypeScript · C++ · HTML/CSS
+Platforms    Cloudflare · Docker · GitHub Actions
+Game dev     Unreal Engine 5 · MetaSounds · Blueprints
+Interests    RAG pipelines · local LLMs · procedural audio
+
+## atlas-systems.uk
+
+Live at [atlas-systems.uk](https://atlas-systems.uk) — documentation,
+project status, and technical writing. Built to demonstrate how I think,
+not just what I've shipped.
+
+---
+
+Scotland · they/them
