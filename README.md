@@ -20,7 +20,7 @@ Interests    RAG pipelines · Local LLMs · Procedural Audio
 
 ## atlas-systems.uk
 
-Live at [atlas-systems.uk](https://www.atlas-systems.uk/) — documentation,
+Live at [atlas-systems.uk](https://atlas-systems.uk/) — documentation,
 project status, and technical writing. Built to demonstrate how I think,
 not just what I've shipped.
 
