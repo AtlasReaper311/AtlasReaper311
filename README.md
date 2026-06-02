@@ -29,8 +29,8 @@ I build at the intersection of **audio systems**, **local AI**, and **deployment
 Final year @ Abertay University. Building Atlas Systems before I graduate.
 
 ```
-P-01  Live Domain       atlas-systems.uk — deployed technical environment     [building]
-P-02  GitHub Library    Modular boilerplates + Logic Lego components           [active]
+P-01  Live Domain       atlas-systems.uk — deployed technical environment     [active]
+P-02  GitHub Library    Modular boilerplates + Logic Lego components           [building]
 P-03  DevOps Core       Docker · GitHub Actions · AWS Cloud Practitioner       [complete]
 P-04  Honours Project   LLM integration with UE5 audio systems                 [planned]
 P-05  Technical Writing Monthly build logs on the domain                       [planned]
@@ -68,10 +68,10 @@ P-05  Technical Writing Monthly build logs on the domain                       [
 
 **Projects**
 
-| Repo | Description |
+| Project| Description |
 |---|---|
-| [`slampunk-audio-engine`](https://github.com/AtlasReaper311/slampunk-audio-engine) | 15-stem dynamic mix engine for competitive arena game |
-| [`ramone`](https://github.com/AtlasReaper311/ramone) | Local AI node — Ollama + Open WebUI, 11 specialist models |
+| [`slampunk-audio-engine`](https://atlas-systems.uk/writing/slampunk-dynamic-mix-engine/) | 15-stem dynamic mix engine for competitive arena game |
+| [`ramone`](https://atlas-systems.uk/writing/ramone-local-ai-system/) | Local AI node — Ollama + Open WebUI, 11 specialist models |
 
 ---
 
