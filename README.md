@@ -1,18 +1,17 @@
-# Atlas Systems
 <!--
-  AtlasReaper311 — GitHub Profile README
+  AtlasReaper311 :: GitHub profile README
   atlas-systems.uk
 -->
 
 <div align="center">
+  <img src="https://raw.githubusercontent.com/AtlasReaper311/AtlasReaper311/main/atlas-icon-dark-256.png" width="120" alt="Atlas Systems"/>
+</div>
 
-```
-atlas@SPECULAR-CORE:~$ whoami
-```
+<div align="center">
 
 # Atlas Reaper
 
-**Audio Systems · Local AI Infrastructure · DevOps**
+**audio systems · local AI infrastructure · devops**
 
 [![Site](https://img.shields.io/badge/atlas--systems.uk-live-f5a623?style=flat-square&labelColor=0a0a0f)](https://atlas-systems.uk)
 [![CV](https://img.shields.io/badge/cv.atlas--systems.uk-resume-555560?style=flat-square&labelColor=0a0a0f)](https://cv.atlas-systems.uk)
@@ -20,68 +19,83 @@ atlas@SPECULAR-CORE:~$ whoami
 
 </div>
 
----
-
-### The Architecture
-
-I build at the intersection of **audio systems**, **local AI**, and **deployment infrastructure** — three domains that share the same core problem: making complex, dynamic systems behave predictably under pressure.
-
-Final year @ Abertay University. Building Atlas Systems before I graduate.
-
-```
-P-01  Live Domain       atlas-systems.uk — deployed technical environment     [active]
-P-02  GitHub Library    Modular boilerplates + Logic Lego components           [building]
-P-03  DevOps Core       Docker · GitHub Actions · AWS Cloud Practitioner       [complete]
-P-04  Honours Project   LLM integration with UE5 audio systems                 [planned]
-P-05  Technical Writing Monthly build logs on the domain                       [planned]
+```console
+atlas@SPECULAR-CORE:~$ whoami
+atlas-reaper  //  audio systems · local AI · deployment infrastructure
 ```
 
 ---
 
-### Stack
+## The architecture
+
+I build at the intersection of audio systems, local AI, and deployment infrastructure. The three share one core problem: making complex, dynamic systems behave predictably under pressure.
+
+Final year at Abertay University, Saltire Scholar. Building Atlas Systems before I graduate. The repositories below are the backend that runs [atlas-systems.uk](https://atlas-systems.uk); the site is the front of the same system, not a separate thing.
+
+```
+P-01  Live domain        atlas-systems.uk, a deployed technical environment     [active]
+P-02  GitHub library     Modular kits and Logic Lego components                 [building]
+P-03  DevOps core        Docker · GitHub Actions · AWS Cloud Practitioner       [active]
+P-04  Honours project    LLM integration with UE5 audio systems                 [planned]
+P-05  Technical writing  Build logs and case studies on the domain              [active]
+```
+
+---
+
+## Stack
 
 | Domain | Tools |
 |---|---|
 | Languages | Python · C++ · JavaScript · HTML/CSS |
-| Game Dev | Unreal Engine 5 · MetaSounds · Blueprints |
-| AI/ML | RAG pipelines · local LLMs (Ollama) · Open WebUI |
-| Infrastructure | Docker · Cloudflare Pages · GitHub Actions |
-| In Progress | AWS · docker-compose · CI/CD automation |
+| Game dev | Unreal Engine 5 · MetaSounds · Blueprints |
+| AI/ML | RAG pipelines · local LLMs (Ollama) · ChromaDB · Open WebUI |
+| Infrastructure | Docker · Cloudflare Workers · Cloudflare Pages · GitHub Actions |
+| In progress | AWS · docker-compose orchestration · CI/CD automation |
 
 ---
 
-### Repos
+## Repositories
 
-**Boilerplates** — drop-in starting points with production structure baked in.
+The backend of the platform, grouped by the layer it sits in. Each repo is built to be read and reused, not just looked at.
 
-| Repo | Description | Status |
+### Live infrastructure
+
+The deployed system behind the domain. These run.
+
+| Repo | Layer | What it does |
 |---|---|---|
-| [`atlas-kit-python-rag`](https://github.com/AtlasReaper311/atlas-kit-python-rag) | Python RAG starter: chunking, embeddings, retrieval, FastAPI | `active` |
-| [`atlas-kit-ue5-metasounds`](https://github.com/AtlasReaper311/atlas-kit-ue5-metasounds) | Unreal Engine 5 MetaSounds boilerplate + Blueprint interface | `active` |
+| [`atlas-systems`](https://github.com/AtlasReaper311/atlas-systems) | ![frontend](https://img.shields.io/badge/frontend-4ade80?style=flat-square&labelColor=0a0a0f) | Hand-built site source; deploys to atlas-systems.uk on every push |
+| [`atlas-notify`](https://github.com/AtlasReaper311/atlas-notify) | ![event bus](https://img.shields.io/badge/event%20bus-f5a623?style=flat-square&labelColor=0a0a0f) | Cloudflare Worker that routes events from every service into one Discord channel |
+| [`github-pulse`](https://github.com/AtlasReaper311/github-pulse) | ![data layer](https://img.shields.io/badge/data%20layer-f5a623?style=flat-square&labelColor=0a0a0f) | Cloudflare Worker serving live GitHub stats to the homepage, token held server-side |
+| [`atlas-doc-viewer`](https://github.com/AtlasReaper311/atlas-doc-viewer) | ![tooling](https://img.shields.io/badge/tooling-aaa9a0?style=flat-square&labelColor=0a0a0f) | Cross-device PDF wrapper; serves the CV at cv.atlas-systems.uk |
+| [`atlas-infra`](https://github.com/AtlasReaper311/atlas-infra) | ![ci/cd](https://img.shields.io/badge/ci%2Fcd-aaa9a0?style=flat-square&labelColor=0a0a0f) | Docker patterns, deploy workflows, and cross-platform ops scripts |
 
-**Infrastructure**
+### Kits and boilerplates
 
-| Repo | Description | Status |
+Reusable starting points with production structure baked in. This is the P-02 library.
+
+| Repo | Layer | What it does |
 |---|---|---|
-| [`atlas-infra`](https://github.com/AtlasReaper311/atlas-infra) | Docker experiments, CI/CD patterns, deployment configs | `active` |
-| [`atlas-doc-viewer`](https://github.com/AtlasReaper311/atlas-doc-viewer) | Main site — deploys to atlas-systems.uk via Cloudflare Pages | `live` |
+| [`atlas-kit-python-rag`](https://github.com/AtlasReaper311/atlas-kit-python-rag) | ![library](https://img.shields.io/badge/library-f5a623?style=flat-square&labelColor=0a0a0f) | Tested Python RAG library: provider-swappable chunking, embeddings, retrieval, FastAPI |
+| [`ollama-rag-kit`](https://github.com/AtlasReaper311/ollama-rag-kit) | ![service](https://img.shields.io/badge/service-f5a623?style=flat-square&labelColor=0a0a0f) | The same architecture as a deployable multi-container service, entirely local |
 
-**Projects**
+---
 
-| Project| Description |
+## Case studies
+
+Long-form build logs published at [atlas-systems.uk/writing](https://atlas-systems.uk/writing). Each documents the architecture, the bottlenecks hit during development, and the reasoning behind every resolution.
+
+| Project | What it is |
 |---|---|
-| [`slampunk-audio-engine`](https://atlas-systems.uk/writing/slampunk-dynamic-mix-engine/) | 15-stem dynamic mix engine for competitive arena game |
-| [`ramone`](https://atlas-systems.uk/writing/ramone-local-ai-system/) | Local AI node — Ollama + Open WebUI, 11 specialist models |
+| [Ramone](https://atlas-systems.uk/writing/ramone-local-ai-system/) | Local AI node: Ollama and Open WebUI serving five models on consumer hardware, rebuildable in under 30 minutes |
+| [SlamPunk](https://atlas-systems.uk/writing/slampunk-dynamic-mix-engine/) | A 15-stem dynamic mix engine for a competitive arena game |
+| [SONIN](https://atlas-systems.uk/writing/sonin-generative-system/) | An autonomous Max/MSP instrument that composes its own evolving music and visuals in real time |
 
 ---
 
-### Philosophy
+## Philosophy
 
-> I document every decision. The writing is at [atlas-systems.uk/writing](https://atlas-systems.uk/writing).
-
-The repos here are meant to be **used**, not just read. Each boilerplate is a module — composable, opinionated, documented. The goal is a GitHub that looks like a library, not a graveyard.
-
----
+I document every decision. The repos here are meant to be used, not just read: each kit is a module, composable and opinionated and documented. The goal is a GitHub that reads like a library, not a graveyard of submissions.
 
 <div align="center">
 
