@@ -15,7 +15,7 @@
 
 [![Site](https://img.shields.io/badge/atlas--systems.uk-live-f5a623?style=flat-square&labelColor=0a0a0f)](https://atlas-systems.uk)
 [![CV](https://img.shields.io/badge/cv.atlas--systems.uk-resume-555560?style=flat-square&labelColor=0a0a0f)](https://cv.atlas-systems.uk)
-[![Status](https://img.shields.io/badge/systems-nominal-4ade80?style=flat-square&labelColor=0a0a0f)](https://atlas-systems.uk)
+[![Status](https://img.shields.io/badge/systems-nominal-4ade80?style=flat-square&labelColor=0a0a0f)](https://status.atlas-systems.uk)
 
 </div>
 
