@@ -23,9 +23,6 @@
 atlas@SPECULAR-CORE:~$ whoami
 atlas-reaper  //  audio systems · local AI · deployment infrastructure
 ```
-<details>
-  <summary><code>atlas@SPECULAR-CORE:~$ curl https://api.atlas-systems.uk/</code></summary>
-
 ---
 
 ## The architecture
