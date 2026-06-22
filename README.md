@@ -21,7 +21,8 @@
 
 ```console
 atlas@SPECULAR-CORE:~$ whoami
-atlas-reaper  //  audio systems · local AI · deployment infrastructure
+atlas-reaper  // local AI ·
+audio systems · deployment infrastructure
 ```
 ---
 
