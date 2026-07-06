@@ -17,6 +17,7 @@
 [![Map](https://img.shields.io/badge/system%20map-live%20architecture-f5a623?style=flat-square&labelColor=0a0a0f)](https://atlas-systems.uk/lab/#system-map)
 [![CV](https://img.shields.io/badge/cv.atlas--systems.uk-resume-555560?style=flat-square&labelColor=0a0a0f)](https://cv.atlas-systems.uk)
 [![Status](https://img.shields.io/badge/systems-nominal-4ade80?style=flat-square&labelColor=0a0a0f)](https://status.atlas-systems.uk)
+[![Atlas Systems status](https://api.atlas-systems.uk/v1/badge/status)](https://api.atlas-systems.uk/v1/docs)
 
 </div>
 
