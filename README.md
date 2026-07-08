@@ -67,7 +67,7 @@ P-05  Technical writing  Build logs and case studies on the domain              
 
 ## Repositories
 
-The backend of the platform, grouped by the layer it sits in. Each repo is built to be read and reused, not just looked at. Status badges are live; they show the last real run of that repo's pipeline.
+The canonical estate map lives in [`atlas-api-public/data/estate.manifest.json`](https://github.com/AtlasReaper311/atlas-api-public/blob/main/data/estate.manifest.json). The tables below are the human-readable view of that manifest. The backend of the platform, grouped by the layer it sits in. Each repo is built to be read and reused, not just looked at. Status badges are live; they show the last real run of that repo's pipeline.
 
 ### The Estate
 
