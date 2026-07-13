@@ -1,0 +1,57 @@
+# Refresh the live block in the profile README.
+#
+# Lives in AtlasReaper311/AtlasReaper311, commits only to itself, so the
+# default GITHUB_TOKEN with contents:write is all it needs. No new PAT.
+#
+# Two things worth knowing about scheduled workflows:
+#   - GitHub disables the schedule after 60 days without repo activity;
+#     this workflow's own commits count as activity, so it keeps itself
+#     alive as long as the estate keeps changing.
+#   - Pushes made with GITHUB_TOKEN do not trigger other workflows, so
+#     this can never start a loop.
+
+name: update-readme
+
+on:
+  schedule:
+    # Every 6 hours: /pulse is KV-cached hourly upstream and profile stats
+    # move slowly, so anything faster buys commit noise, not information.
+    # :17 rather than :00 because GitHub's schedulers are most delayed and
+    # most congested exactly on the hour.
+    - cron: "17 */6 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: update-readme
+  cancel-in-progress: true # a newer refresh always supersedes an older one
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+
+      # ubuntu-latest ships Python 3.12 and the script is stdlib-only:
+      # no setup-python, no pip, nothing extra to break or wait for.
+      - name: regenerate live block
+        run: python3 scripts/update_readme.py
+
+      # Same convention as deploy-watch: only signal on genuine outcome
+      # change, never on every poll. The script embeds no fetch timestamp,
+      # so identical upstream data renders to identical bytes and this
+      # step skips cleanly.
+      - name: commit only on genuine change
+        run: |
+          if git diff --quiet -- README.md; then
+            echo "no genuine change; skipping commit"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add README.md
+          git commit -m "chore(readme): refresh live estate block"
+          git push

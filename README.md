@@ -7,6 +7,9 @@
   <img src="https://raw.githubusercontent.com/AtlasReaper311/AtlasReaper311/main/atlas-icon-dark-256.png" width="120" alt="Atlas Systems"/>
 </div>
 
+<!-- ATLAS:LIVE:START -->
+<!-- ATLAS:LIVE:END -->
+
 <div align="center">
 
 # Atlas Reaper
