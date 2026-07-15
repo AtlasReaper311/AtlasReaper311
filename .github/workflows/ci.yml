@@ -1,0 +1,42 @@
+name: Pull request CI
+
+on:
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.repository }}-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  profile-validation:
+    name: Profile README validation
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+
+      - name: Compile the updater
+        run: python3 -m py_compile scripts/update_readme.py
+
+      - name: Validate the deterministic sample and README markers
+        run: |
+          python3 scripts/update_readme.py --sample > "$RUNNER_TEMP/live-block.txt"
+          python3 - <<'PY'
+          import os
+          from pathlib import Path
+
+          readme = Path("README.md").read_text(encoding="utf-8")
+          sample = (Path(os.environ["RUNNER_TEMP"]) / "live-block.txt").read_text(encoding="utf-8")
+          start = "<!-- ATLAS:LIVE:START -->"
+          end = "<!-- ATLAS:LIVE:END -->"
+          if readme.count(start) != 1 or readme.count(end) != 1:
+              raise SystemExit("README must contain exactly one ordered Atlas live marker pair")
+          if readme.index(start) >= readme.index(end):
+              raise SystemExit("Atlas live markers are reversed")
+          if sample.count(start) != 1 or sample.count(end) != 1:
+              raise SystemExit("sample output does not contain one Atlas live marker pair")
+          PY
