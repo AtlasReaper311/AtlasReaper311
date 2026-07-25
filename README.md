@@ -10,14 +10,14 @@
 <!-- ATLAS:LIVE:START -->
 ```text
 atlas@SPECULAR-CORE:~$ status
-[deploy]   ● operational · ce8892c · 2026-07-24 17:58 UTC
-[estate]   32 public repos · 11 stars
-[activity] 1381 commits in the last 90 days
+[deploy]   ● operational · 04e23f3 · 2026-07-25 00:50 UTC
+[estate]   33 public repos · 11 stars
+[activity] 1439 commits in the last 90 days
 [writing]  W-04 · Overclocking SPECULAR-CORE · 2026-06-22
 atlas@SPECULAR-CORE:~$ _
 ```
 
-![estate: 32 repos](https://img.shields.io/badge/estate-32_repos-f5a623?style=flat-square&labelColor=0a0a0f) ![deploy: operational](https://img.shields.io/badge/deploy-operational-4ade80?style=flat-square&labelColor=0a0a0f) [![writing: W-04](https://img.shields.io/badge/writing-W--04-e8e8e0?style=flat-square&labelColor=0a0a0f)](https://atlas-systems.uk/writing/overclocking-specular-core/)
+![estate: 33 repos](https://img.shields.io/badge/estate-33_repos-f5a623?style=flat-square&labelColor=0a0a0f) ![deploy: operational](https://img.shields.io/badge/deploy-operational-4ade80?style=flat-square&labelColor=0a0a0f) [![writing: W-04](https://img.shields.io/badge/writing-W--04-e8e8e0?style=flat-square&labelColor=0a0a0f)](https://atlas-systems.uk/writing/overclocking-specular-core/)
 
 <sub>live estate telemetry · regenerates every 6 hours · commits only on genuine change</sub>
 <!-- ATLAS:LIVE:END -->
