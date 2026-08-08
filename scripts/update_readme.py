@@ -1,41 +1,42 @@
 #!/usr/bin/env python3
-"""Regenerate the live block in the profile README.
+"""Regenerate the governed live block in the profile README.
 
-Fetches three read-only public sources and rewrites ONLY the content
-between the ATLAS:LIVE markers, so hand-written bio text survives every
-run untouched:
+The generated block deliberately separates three evidence classes:
 
-  /pulse                 aggregate GitHub stats (KV-cached hourly upstream)
-  /deploy-watch/latest   latest Cloudflare Pages deploy snapshot
-  writing/manifest.json  published case studies (flat array, may not exist)
+  Atlas Infra projection   governed public repository count
+  deploy-watch             latest public site deployment snapshot
+  Writing index            latest published case study
 
-Response shapes were confirmed against the live endpoints on 2026-07-13;
-the SAMPLE_* constants at the bottom document them and drive --sample.
+The updater rewrites only the content between the ATLAS:LIVE markers. It does
+not use GitHub account membership as estate governance, does not present
+automation-heavy repository commit volume as personal activity, and does not
+depend on the legacy writing/manifest.json file.
 
 Failure policy, per source:
-  data source unreachable  -> honest "couldn't confirm" line, run continues
-  README markers missing   -> hard failure; that's a config error a human
-                              must fix, and failing loudly is the fix
+  source unreachable or malformed -> honest "couldn't confirm" line
+  README markers missing           -> hard failure
 
-Nothing here embeds a fetch timestamp. Identical upstream data renders to
-identical bytes, so the workflow's diff-before-commit step can skip runs
-where nothing genuinely changed. Stdlib only: no pip step in the workflow,
-one fewer thing to break.
+Nothing embeds a fetch timestamp. Identical evidence renders to identical
+bytes, so the scheduled workflow can skip runs with no genuine change.
 """
 
 from __future__ import annotations
 
 import argparse
 import json
+import re
 import sys
 import urllib.error
 import urllib.request
-from datetime import datetime, timezone
+from html.parser import HTMLParser
 from pathlib import Path
 
-PULSE_URL = "https://api.atlas-systems.uk/pulse"
+PROJECTION_URL = (
+    "https://raw.githubusercontent.com/AtlasReaper311/atlas-infra/main/"
+    "policy/public-repository-classifications.json"
+)
 DEPLOY_URL = "https://api.atlas-systems.uk/deploy-watch/latest"
-MANIFEST_URL = "https://atlas-systems.uk/writing/manifest.json"
+WRITING_INDEX_URL = "https://atlas-systems.uk/writing/"
 WRITING_URL = "https://atlas-systems.uk/writing/"
 
 README_PATH = Path(__file__).resolve().parent.parent / "README.md"
@@ -43,31 +44,55 @@ START_MARKER = "<!-- ATLAS:LIVE:START -->"
 END_MARKER = "<!-- ATLAS:LIVE:END -->"
 
 TIMEOUT_SECONDS = 10
-USER_AGENT = "atlas-readme-refresh (github.com/AtlasReaper311/AtlasReaper311)"
+USER_AGENT = "atlas-profile-refresh (github.com/AtlasReaper311/AtlasReaper311)"
 
-# Terminal status glyphs stay monochrome text inside the code block; the
-# colour signal lives in the shields badge below it. Emoji dots in a README
-# would fight the estate's restraint.
+PROJECTION_SCHEMA = "atlas-public-repository-classifications/projection/v1"
+PROJECTION_AUTHORITY = "AtlasReaper311/atlas-infra"
+
+
+STATIC_REPLACEMENTS = (
+    (
+        "## Public repositories",
+        "## Selected public repositories",
+    ),
+    (
+        "The public estate map lives in [`atlas-api-public/data/estate.manifest.json`](https://github.com/AtlasReaper311/atlas-api-public/blob/main/data/estate.manifest.json). The public registry shows approved live Workers; the manifest describes the intentionally published architecture. Repository visibility is not inferred from account membership.",
+        "The authoritative public repository classification lives in [`atlas-infra/policy/public-repository-classifications.json`](https://github.com/AtlasReaper311/atlas-infra/blob/main/policy/public-repository-classifications.json). Runtime topology and presentation live in [`atlas-api-public/data/estate.manifest.json`](https://github.com/AtlasReaper311/atlas-api-public/blob/main/data/estate.manifest.json). They are separate contracts: repository governance is not inferred from topology, repository visibility, or account membership.",
+    ),
+)
+
 STATUS_WORDS = {
     "success": ("operational", "4ade80"),
     "failure": ("failing", "e24b4a"),
     "canceled": ("canceled", "aaa9a0"),
     "unknown": ("unknown", "555560"),
 }
-BUILDING = ("building", "f5a623")  # any other status means in progress
+BUILDING = ("building", "f5a623")
 
 
-def fetch_json(url: str):
-    """One source, one honest outcome: parsed JSON or None."""
+def fetch_text(url: str) -> str | None:
+    """Fetch one public text source, returning None on an untrusted result."""
     request = urllib.request.Request(url, headers={"User-Agent": USER_AGENT})
     try:
         with urllib.request.urlopen(request, timeout=TIMEOUT_SECONDS) as response:
             if response.status != 200:
                 print(f"warning: {url} returned {response.status}", file=sys.stderr)
                 return None
-            return json.loads(response.read().decode("utf-8"))
-    except (urllib.error.URLError, TimeoutError, json.JSONDecodeError, OSError) as exc:
+            return response.read().decode("utf-8")
+    except (urllib.error.URLError, TimeoutError, UnicodeDecodeError, OSError) as exc:
         print(f"warning: couldn't fetch {url}: {exc}", file=sys.stderr)
+        return None
+
+
+def fetch_json(url: str):
+    """Fetch and parse one public JSON source."""
+    text = fetch_text(url)
+    if text is None:
+        return None
+    try:
+        return json.loads(text)
+    except json.JSONDecodeError as exc:
+        print(f"warning: couldn't parse JSON from {url}: {exc}", file=sys.stderr)
         return None
 
 
@@ -75,6 +100,8 @@ def iso_to_display(raw) -> str | None:
     """ISO timestamp -> 'YYYY-MM-DD HH:MM UTC', or None if unparseable."""
     if not isinstance(raw, str):
         return None
+    from datetime import datetime, timezone
+
     try:
         parsed = datetime.fromisoformat(raw.replace("Z", "+00:00"))
     except ValueError:
@@ -85,16 +112,16 @@ def iso_to_display(raw) -> str | None:
 def shield(label: str, message: str, color: str) -> str:
     def esc(text: str) -> str:
         return (
-            text.replace("-", "--").replace("_", "__").replace(" ", "_").replace("/", "%2F")
+            text.replace("-", "--")
+            .replace("_", "__")
+            .replace(" ", "_")
+            .replace("/", "%2F")
         )
 
     return (
         f"https://img.shields.io/badge/{esc(label)}-{esc(message)}-{color}"
         "?style=flat-square&labelColor=0a0a0f"
     )
-
-
-# ------------------------------------------------------------- renderers
 
 
 def deploy_line_and_badge(deploy) -> tuple[str, str]:
@@ -112,73 +139,141 @@ def deploy_line_and_badge(deploy) -> tuple[str, str]:
     return line, f"![deploy: {word}]({shield('deploy', word, color)})"
 
 
-def pulse_lines_and_badge(pulse) -> tuple[list[str], str]:
-    totals = pulse.get("totals") if isinstance(pulse, dict) else None
-    if not isinstance(totals, dict):
-        lines = ["[estate]   ? couldn't confirm estate stats at last refresh"]
-        return lines, f"![estate]({shield('estate', 'unconfirmed', '555560')})"
+def estate_line_and_badge(projection) -> tuple[str, str]:
+    repositories = projection.get("repositories") if isinstance(projection, dict) else None
+    count = projection.get("repository_count") if isinstance(projection, dict) else None
+    valid = (
+        isinstance(projection, dict)
+        and projection.get("schema_version") == PROJECTION_SCHEMA
+        and projection.get("authority") == PROJECTION_AUTHORITY
+        and isinstance(repositories, list)
+        and isinstance(count, int)
+        and count == len(repositories)
+    )
+    if not valid:
+        line = "[estate]   ? couldn't confirm governed repository count at last refresh"
+        return line, f"![estate]({shield('estate', 'unconfirmed', '555560')})"
 
-    repos = totals.get("publicRepos")
-    stars = totals.get("stars")
-    commits = totals.get("commitsLast90Days")
-
-    repo_text = f"{repos} public repos" if isinstance(repos, int) else "repos unconfirmed"
-    star_text = f" · {stars} stars" if isinstance(stars, int) else ""
-    lines = [f"[estate]   {repo_text}{star_text}"]
-    if isinstance(commits, int):
-        lines.append(f"[activity] {commits} commits in the last 90 days")
-
-    message = f"{repos} repos" if isinstance(repos, int) else "unconfirmed"
-    return lines, f"![estate: {message}]({shield('estate', message, 'f5a623')})"
-
-
-def latest_case_study(manifest):
-    """Newest published entry, or None. The consumer sorts by date itself
-    rather than trusting the file's order; a manifest is data, not a
-    promise about ordering."""
-    if not isinstance(manifest, list):
-        return None
-    dated = [
-        entry
-        for entry in manifest
-        if isinstance(entry, dict)
-        and isinstance(entry.get("slug"), str)
-        and isinstance(entry.get("date"), str)
-    ]
-    if not dated:
-        return None
-    return sorted(dated, key=lambda entry: entry["date"], reverse=True)[0]
-
-
-def writing_line_and_badge(manifest) -> tuple[str, str]:
-    entry = latest_case_study(manifest)
-    if entry is None:
-        # The manifest is a recommendation, not yet a guarantee; degrade to
-        # a plain pointer instead of failing the whole refresh.
-        line = "[writing]  latest case study: atlas-systems.uk/writing"
-        badge = f"[![writing: case studies]({shield('writing', 'case studies', 'e8e8e0')})]({WRITING_URL})"
-        return line, badge
-
-    w_number = str(entry.get("w_number") or "W-??")
-    title = str(entry.get("title") or entry["slug"])
-    line = f"[writing]  {w_number} · {title} · {entry['date']}"
-    url = f"{WRITING_URL}{entry['slug']}/"
-    badge = f"[![writing: {w_number}]({shield('writing', w_number, 'e8e8e0')})]({url})"
+    line = f"[estate]   {count} governed public repos"
+    badge = f"![estate: {count} repos]({shield('estate', f'{count} repos', 'f5a623')})"
     return line, badge
 
 
-def render_block(pulse, deploy, manifest) -> str:
-    deploy_line, deploy_badge = deploy_line_and_badge(deploy)
-    pulse_lines, pulse_badge = pulse_lines_and_badge(pulse)
-    writing_line, writing_badge = writing_line_and_badge(manifest)
+class WritingIndexParser(HTMLParser):
+    """Collect published Writing cards from the scheduler-owned index."""
 
-    # `status` is a real command in the estate shell overlay on
-    # atlas-systems.uk; the profile README speaks the same dialect.
+    def __init__(self) -> None:
+        super().__init__(convert_charrefs=True)
+        self.entries: list[dict[str, str | int]] = []
+        self._entry: dict[str, str | int] | None = None
+        self._capture: str | None = None
+        self._buffer: list[str] = []
+
+    @staticmethod
+    def _classes(attrs: dict[str, str | None]) -> set[str]:
+        return set((attrs.get("class") or "").split())
+
+    def handle_starttag(self, tag: str, attrs_list) -> None:
+        attrs = dict(attrs_list)
+        classes = self._classes(attrs)
+
+        if tag == "a" and "article-entry" in classes:
+            href = attrs.get("href") or ""
+            if "coming-soon" in classes or not re.fullmatch(r"/writing/[a-z0-9-]+/", href):
+                self._entry = None
+                return
+            self._entry = {"href": href}
+            return
+
+        if self._entry is None:
+            return
+
+        if tag == "span" and "article-number" in classes:
+            self._capture = "number"
+            self._buffer = []
+        elif tag == "h2" and "article-title" in classes:
+            self._capture = "title"
+            self._buffer = []
+
+    def handle_data(self, data: str) -> None:
+        if self._entry is not None and self._capture is not None:
+            self._buffer.append(data)
+
+    def handle_endtag(self, tag: str) -> None:
+        if self._entry is None:
+            return
+
+        if self._capture == "number" and tag == "span":
+            raw = "".join(self._buffer).strip()
+            match = re.fullmatch(r"W-(\d+)", raw)
+            if match:
+                self._entry["w_number"] = int(match.group(1))
+                self._entry["w_label"] = raw
+            self._capture = None
+            self._buffer = []
+            return
+
+        if self._capture == "title" and tag == "h2":
+            self._entry["title"] = " ".join("".join(self._buffer).split())
+            self._capture = None
+            self._buffer = []
+            return
+
+        if tag == "a":
+            required = {"href", "w_number", "w_label", "title"}
+            if required.issubset(self._entry):
+                self.entries.append(dict(self._entry))
+            self._entry = None
+            self._capture = None
+            self._buffer = []
+
+
+def latest_published_writing(index_html: str | None) -> dict[str, str | int] | None:
+    if not isinstance(index_html, str):
+        return None
+    parser = WritingIndexParser()
+    try:
+        parser.feed(index_html)
+        parser.close()
+    except Exception as exc:
+        print(f"warning: couldn't parse Writing index: {exc}", file=sys.stderr)
+        return None
+    if not parser.entries:
+        return None
+    return max(parser.entries, key=lambda entry: int(entry["w_number"]))
+
+
+def writing_line_and_badge(index_html: str | None) -> tuple[str, str]:
+    entry = latest_published_writing(index_html)
+    if entry is None:
+        line = "[writing]  latest case study: atlas-systems.uk/writing"
+        badge = (
+            f"[![writing: case studies]({shield('writing', 'case studies', 'e8e8e0')})]"
+            f"({WRITING_URL})"
+        )
+        return line, badge
+
+    w_label = str(entry["w_label"])
+    title = str(entry["title"])
+    href = str(entry["href"])
+    line = f"[writing]  {w_label} · {title}"
+    badge = (
+        f"[![writing: {w_label}]({shield('writing', w_label, 'e8e8e0')})]"
+        f"(https://atlas-systems.uk{href})"
+    )
+    return line, badge
+
+
+def render_block(projection, deploy, writing_index_html: str | None) -> str:
+    deploy_line, deploy_badge = deploy_line_and_badge(deploy)
+    estate_line, estate_badge = estate_line_and_badge(projection)
+    writing_line, writing_badge = writing_line_and_badge(writing_index_html)
+
     terminal = "\n".join(
         [
             "atlas@SPECULAR-CORE:~$ status",
             deploy_line,
-            *pulse_lines,
+            estate_line,
             writing_line,
             "atlas@SPECULAR-CORE:~$ _",
         ]
@@ -191,16 +286,27 @@ def render_block(pulse, deploy, manifest) -> str:
             terminal,
             "```",
             "",
-            f"{pulse_badge} {deploy_badge} {writing_badge}",
+            f"{estate_badge} {deploy_badge} {writing_badge}",
             "",
-            "<sub>live estate telemetry · regenerates every 6 hours · "
-            "commits only on genuine change</sub>",
+            "<sub>governed estate + live publish state · refreshes every 6 hours · "
+            "updates through a validated pull request</sub>",
             END_MARKER,
         ]
     )
 
 
-# ------------------------------------------------------------------ main
+def apply_static_accuracy_corrections(readme_text: str) -> str:
+    """Apply the two profile prose corrections that must not drift silently."""
+    updated = readme_text
+    for old, new in STATIC_REPLACEMENTS:
+        if old in updated:
+            updated = updated.replace(old, new, 1)
+            continue
+        if new not in updated:
+            raise SystemExit(
+                "error: profile static accuracy anchor drifted; inspect README before refreshing"
+            )
+    return updated
 
 
 def splice(readme_text: str, block: str) -> str:
@@ -213,7 +319,7 @@ def splice(readme_text: str, block: str) -> str:
     end = readme_text.index(END_MARKER)
     if end < start:
         raise SystemExit("error: ATLAS:LIVE markers are reversed in README.md")
-    return readme_text[:start] + block + readme_text[end + len(END_MARKER):]
+    return readme_text[:start] + block + readme_text[end + len(END_MARKER) :]
 
 
 def main() -> int:
@@ -224,25 +330,27 @@ def main() -> int:
     parser.add_argument(
         "--sample",
         action="store_true",
-        help="render from the embedded confirmed-shape samples, no network",
+        help="render from embedded confirmed-shape samples, no network",
     )
     args = parser.parse_args()
 
     if args.sample:
-        pulse, deploy, manifest = SAMPLE_PULSE, SAMPLE_DEPLOY, SAMPLE_MANIFEST
+        projection = SAMPLE_PROJECTION
+        deploy = SAMPLE_DEPLOY
+        writing_index_html = SAMPLE_WRITING_INDEX
     else:
-        pulse = fetch_json(PULSE_URL)
+        projection = fetch_json(PROJECTION_URL)
         deploy = fetch_json(DEPLOY_URL)
-        manifest = fetch_json(MANIFEST_URL)
+        writing_index_html = fetch_text(WRITING_INDEX_URL)
 
-    block = render_block(pulse, deploy, manifest)
+    block = render_block(projection, deploy, writing_index_html)
 
     if args.dry_run or args.sample:
         print(block)
         return 0
 
     existing = README_PATH.read_text(encoding="utf-8")
-    updated = splice(existing, block)
+    updated = apply_static_accuracy_corrections(splice(existing, block))
 
     if updated == existing:
         print("unchanged: rendered block matches README, nothing to commit")
@@ -253,33 +361,37 @@ def main() -> int:
     return 0
 
 
-# Shapes confirmed against the live endpoints, 2026-07-13. Trimmed to the
-# fields this script reads; the real payloads carry more.
-SAMPLE_PULSE = {
-    "generatedAt": "2026-07-13T14:31:31.415Z",
-    "user": "AtlasReaper311",
-    "totals": {"publicRepos": 24, "stars": 11, "commitsLast90Days": 478},
+SAMPLE_PROJECTION = {
+    "schema_version": PROJECTION_SCHEMA,
+    "authority": PROJECTION_AUTHORITY,
+    "repository_count": 33,
+    "repositories": [{"repository": f"AtlasReaper311/example-{i}"} for i in range(33)],
 }
 
 SAMPLE_DEPLOY = {
     "ok": True,
-    "deployId": "15034c61-0297-4846-ac3c-d68c4fc55d41",
-    "status": "success",  # success | failure | canceled | anything-else=building
-    "branch": "main",
-    "commitSha": "55f3e6b",
-    "createdOn": "2026-07-08T17:14:16.261773Z",
-    "endedOn": "2026-07-08T17:14:18.793486Z",
-    "checkedAt": "2026-07-08T17:15:46.284Z",
+    "status": "success",
+    "commitSha": "aeaac264616dd9fcdc8510a3886382462f3a9077",
+    "createdOn": "2026-08-07T11:55:00Z",
+    "endedOn": "2026-08-07T11:57:00Z",
 }
 
-SAMPLE_MANIFEST = [
-    {
-        "slug": "overclocking-specular-core",
-        "title": "Overclocking SPECULAR-CORE",
-        "date": "2026-06-22",
-        "w_number": "W-04",
-    }
-]
+SAMPLE_WRITING_INDEX = """
+<div class="articles">
+  <a href="#" class="article-entry coming-soon" aria-disabled="true">
+    <span class="article-number">W-08</span>
+    <h2 class="article-title">SPECULAR-CORE: Architectural Recovery</h2>
+  </a>
+  <a href="/writing/atlas-lab-observability/" class="article-entry">
+    <span class="article-number">W-07</span>
+    <h2 class="article-title">Atlas Lab</h2>
+  </a>
+  <a href="/writing/overclocking-specular-core/" class="article-entry">
+    <span class="article-number">W-04</span>
+    <h2 class="article-title">Pushing the Limits: Overclocking SPECULAR-CORE</h2>
+  </a>
+</div>
+"""
 
 
 if __name__ == "__main__":
