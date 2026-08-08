@@ -1,57 +1,132 @@
-# Refresh the live block in the profile README.
+# Refresh the governed live block in the profile README.
 #
-# Lives in AtlasReaper311/AtlasReaper311, commits only to itself, so the
-# default GITHUB_TOKEN with contents:write is all it needs. No new PAT.
+# The scheduled job never writes main directly. A genuine content change is
+# committed to a one-use automation branch, validated on that exact head,
+# merged through a pull request, and then the branch is deleted.
 #
-# Two things worth knowing about scheduled workflows:
-#   - GitHub disables the schedule after 60 days without repo activity;
-#     this workflow's own commits count as activity, so it keeps itself
-#     alive as long as the estate keeps changing.
-#   - Pushes made with GITHUB_TOKEN do not trigger other workflows, so
-#     this can never start a loop.
+# The repository-local GITHUB_TOKEN is sufficient. No PAT or bypass actor is
+# required. workflow_dispatch is used deliberately because GitHub does not
+# automatically execute ordinary workflow events caused by GITHUB_TOKEN.
 
 name: update-readme
 
 on:
   schedule:
-    # Every 6 hours: /pulse is KV-cached hourly upstream and profile stats
-    # move slowly, so anything faster buys commit noise, not information.
-    # :17 rather than :00 because GitHub's schedulers are most delayed and
-    # most congested exactly on the hour.
     - cron: "17 */6 * * *"
   workflow_dispatch:
 
 permissions:
   contents: write
+  pull-requests: write
+  actions: write
 
 concurrency:
   group: update-readme
-  cancel-in-progress: true # a newer refresh always supersedes an older one
+  cancel-in-progress: true
 
 jobs:
   refresh:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 15
     steps:
-      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0, Node 24
+      - name: Check out profile repository
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0, Node 24
+        with:
+          fetch-depth: 0
 
-      # ubuntu-latest ships Python 3.12 and the script is stdlib-only:
-      # no setup-python, no pip, nothing extra to break or wait for.
-      - name: regenerate live block
+      - name: Regenerate governed live block
         run: python3 scripts/update_readme.py
 
-      # Same convention as deploy-watch: only signal on genuine outcome
-      # change, never on every poll. The script embeds no fetch timestamp,
-      # so identical upstream data renders to identical bytes and this
-      # step skips cleanly.
-      - name: commit only on genuine change
+      - name: Detect genuine change
+        id: diff
         run: |
+          set -eu
           if git diff --quiet -- README.md; then
-            echo "no genuine change; skipping commit"
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            echo "no genuine change; skipping pull request"
             exit 0
           fi
+          echo "changed=true" >> "$GITHUB_OUTPUT"
+
+      - name: Commit generated README on one-use branch
+        if: steps.diff.outputs.changed == 'true'
+        id: branch
+        run: |
+          set -eu
+          BRANCH="automation/profile-readme-refresh-${GITHUB_RUN_ID}"
+          git switch -c "$BRANCH"
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add README.md
-          git commit -m "chore(readme): refresh live estate block"
-          git push
+          git commit -m "chore(readme): refresh governed live block"
+          git push --set-upstream origin "$BRANCH"
+          echo "name=$BRANCH" >> "$GITHUB_OUTPUT"
+          echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+
+      - name: Open pull request
+        if: steps.diff.outputs.changed == 'true'
+        id: pr
+        env:
+          GH_TOKEN: ${{ github.token }}
+          BRANCH: ${{ steps.branch.outputs.name }}
+        run: |
+          set -eu
+          PR_URL="$(gh pr create \
+            --base main \
+            --head "$BRANCH" \
+            --title "Refresh governed profile evidence" \
+            --body "Automated six-hour profile refresh. The branch contains only the generated README live block. It must pass exact-head profile validation before merge.")"
+          echo "url=$PR_URL" >> "$GITHUB_OUTPUT"
+
+      - name: Dispatch exact-head profile validation
+        if: steps.diff.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          BRANCH: ${{ steps.branch.outputs.name }}
+        run: |
+          set -eu
+          gh workflow run ci.yml --ref "$BRANCH"
+
+      - name: Wait for exact-head profile validation
+        if: steps.diff.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          BRANCH: ${{ steps.branch.outputs.name }}
+          HEAD_SHA: ${{ steps.branch.outputs.sha }}
+        run: |
+          set -eu
+          RUN_ID=""
+          ATTEMPT=0
+          while [ "$ATTEMPT" -lt 30 ]
+          do
+            RUN_ID="$(gh run list \
+              --workflow ci.yml \
+              --branch "$BRANCH" \
+              --event workflow_dispatch \
+              --limit 20 \
+              --json databaseId,headSha \
+              --jq ".[] | select(.headSha == \"$HEAD_SHA\") | .databaseId" | head -n 1)"
+            if [ -n "$RUN_ID" ]; then
+              break
+            fi
+            ATTEMPT=$((ATTEMPT + 1))
+            sleep 5
+          done
+          if [ -z "$RUN_ID" ]; then
+            echo "::error::Could not locate exact-head profile validation run."
+            exit 1
+          fi
+          gh run watch "$RUN_ID" --exit-status
+
+      - name: Merge validated exact head
+        if: steps.diff.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_URL: ${{ steps.pr.outputs.url }}
+          HEAD_SHA: ${{ steps.branch.outputs.sha }}
+        run: |
+          set -eu
+          gh pr merge "$PR_URL" \
+            --squash \
+            --delete-branch \
+            --match-head-commit "$HEAD_SHA"
