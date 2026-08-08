@@ -10,16 +10,15 @@
 <!-- ATLAS:LIVE:START -->
 ```text
 atlas@SPECULAR-CORE:~$ status
-[deploy]   ● operational · aeaac26 · 2026-08-07 11:57 UTC
-[estate]   33 public repos · 12 stars
-[activity] 2095 commits in the last 90 days
-[writing]  W-04 · Overclocking SPECULAR-CORE · 2026-06-22
+[deploy]   ● operational · c376e37 · 2026-08-08 23:27 UTC
+[estate]   33 governed public repos
+[writing]  W-07 · Atlas Lab
 atlas@SPECULAR-CORE:~$ _
 ```
 
-![estate: 33 repos](https://img.shields.io/badge/estate-33_repos-f5a623?style=flat-square&labelColor=0a0a0f) ![deploy: operational](https://img.shields.io/badge/deploy-operational-4ade80?style=flat-square&labelColor=0a0a0f) [![writing: W-04](https://img.shields.io/badge/writing-W--04-e8e8e0?style=flat-square&labelColor=0a0a0f)](https://atlas-systems.uk/writing/overclocking-specular-core/)
+![estate: 33 repos](https://img.shields.io/badge/estate-33_repos-f5a623?style=flat-square&labelColor=0a0a0f) ![deploy: operational](https://img.shields.io/badge/deploy-operational-4ade80?style=flat-square&labelColor=0a0a0f) [![writing: W-07](https://img.shields.io/badge/writing-W--07-e8e8e0?style=flat-square&labelColor=0a0a0f)](https://atlas-systems.uk/writing/atlas-lab-observability/)
 
-<sub>live estate telemetry · regenerates every 6 hours · commits only on genuine change</sub>
+<sub>governed estate + live publish state · refreshes every 6 hours · updates through a validated pull request</sub>
 <!-- ATLAS:LIVE:END -->
 
 <div align="center">
@@ -80,9 +79,9 @@ P-05  Technical writing  Build logs and case studies on the domain              
 
 ---
 
-## Public repositories
+## Selected public repositories
 
-The public estate map lives in [`atlas-api-public/data/estate.manifest.json`](https://github.com/AtlasReaper311/atlas-api-public/blob/main/data/estate.manifest.json). The public registry shows approved live Workers; the manifest describes the intentionally published architecture. Repository visibility is not inferred from account membership.
+The authoritative public repository classification lives in [`atlas-infra/policy/public-repository-classifications.json`](https://github.com/AtlasReaper311/atlas-infra/blob/main/policy/public-repository-classifications.json). Runtime topology and presentation live in [`atlas-api-public/data/estate.manifest.json`](https://github.com/AtlasReaper311/atlas-api-public/blob/main/data/estate.manifest.json). They are separate contracts: repository governance is not inferred from topology, repository visibility, or account membership.
 
 ### Production infrastructure
 
