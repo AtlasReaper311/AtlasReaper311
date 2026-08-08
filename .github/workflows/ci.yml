@@ -2,6 +2,7 @@ name: Pull request CI
 
 on:
   pull_request:
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -13,17 +14,22 @@ concurrency:
 jobs:
   profile-validation:
     name: Profile README validation
+    if: ${{ !startsWith(github.head_ref, 'automation/profile-readme-refresh-') }}
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
       - name: Check out repository
-        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0, Node 24
 
       - name: Compile the updater
         run: python3 -m py_compile scripts/update_readme.py
 
-      - name: Validate the deterministic sample and README markers
+      - name: Run updater unit tests
+        run: python3 -m unittest tests/test_update_readme.py
+
+      - name: Validate deterministic sample and README markers
         run: |
+          set -eu
           python3 scripts/update_readme.py --sample > "$RUNNER_TEMP/live-block.txt"
           python3 - <<'PY'
           import os
@@ -39,4 +45,10 @@ jobs:
               raise SystemExit("Atlas live markers are reversed")
           if sample.count(start) != 1 or sample.count(end) != 1:
               raise SystemExit("sample output does not contain one Atlas live marker pair")
+          if "[writing]  W-07 · Atlas Lab" not in sample:
+              raise SystemExit("sample output did not select the latest published Writing card")
+          if "[estate]   33 governed public repos" not in sample:
+              raise SystemExit("sample output did not use the Atlas Infra projection count")
+          if "[activity]" in sample:
+              raise SystemExit("sample output must not present aggregate commit volume as profile activity")
           PY
