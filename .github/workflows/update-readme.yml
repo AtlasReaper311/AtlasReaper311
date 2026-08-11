@@ -5,8 +5,10 @@
 # merged through a pull request, and then the branch is deleted.
 #
 # The repository-local GITHUB_TOKEN is sufficient. No PAT or bypass actor is
-# required. workflow_dispatch is used deliberately because GitHub does not
-# automatically execute ordinary workflow events caused by GITHUB_TOKEN.
+# required. workflow_dispatch remains a belt-and-suspenders exact-head check
+# because token-authored events are not guaranteed to schedule sibling
+# workflows; the merge gate waits for the PR to become CLEAN under the
+# repository ruleset (required check: Profile README validation).
 
 name: update-readme
 
@@ -87,36 +89,36 @@ jobs:
           set -eu
           gh workflow run ci.yml --ref "$BRANCH"
 
-      - name: Wait for exact-head profile validation
+      - name: Wait for ruleset-ready profile validation
         if: steps.diff.outputs.changed == 'true'
         env:
           GH_TOKEN: ${{ github.token }}
+          PR_URL: ${{ steps.pr.outputs.url }}
           BRANCH: ${{ steps.branch.outputs.name }}
           HEAD_SHA: ${{ steps.branch.outputs.sha }}
         run: |
           set -eu
-          RUN_ID=""
           ATTEMPT=0
-          while [ "$ATTEMPT" -lt 30 ]
+          while [ "$ATTEMPT" -lt 60 ]
           do
-            RUN_ID="$(gh run list \
-              --workflow ci.yml \
-              --branch "$BRANCH" \
-              --event workflow_dispatch \
-              --limit 20 \
-              --json databaseId,headSha \
-              --jq ".[] | select(.headSha == \"$HEAD_SHA\") | .databaseId" | head -n 1)"
-            if [ -n "$RUN_ID" ]; then
-              break
+            MERGE_STATE="$(gh pr view "$PR_URL" --json mergeStateStatus --jq .mergeStateStatus)"
+            CHECK="$(gh api "repos/${GITHUB_REPOSITORY}/commits/${HEAD_SHA}/check-runs" \
+              --jq '[.check_runs[] | select(.name == "Profile README validation")] | sort_by(.completed_at // .started_at) | reverse | .[0].conclusion // "missing"')"
+            echo "attempt=${ATTEMPT} mergeStateStatus=${MERGE_STATE} profile_check=${CHECK}"
+            if [ "$CHECK" = "failure" ] || [ "$CHECK" = "cancelled" ] || [ "$CHECK" = "timed_out" ]; then
+              echo "::error::Profile README validation concluded ${CHECK}."
+              exit 1
+            fi
+            if [ "$MERGE_STATE" = "CLEAN" ] && [ "$CHECK" = "success" ]; then
+              exit 0
             fi
             ATTEMPT=$((ATTEMPT + 1))
             sleep 5
           done
-          if [ -z "$RUN_ID" ]; then
-            echo "::error::Could not locate exact-head profile validation run."
-            exit 1
-          fi
-          gh run watch "$RUN_ID" --exit-status
+          echo "::error::Timed out waiting for Profile README validation and CLEAN merge state on ${PR_URL}."
+          gh pr view "$PR_URL" --json number,url,mergeStateStatus,statusCheckRollup
+          gh run list --workflow ci.yml --branch "$BRANCH" --limit 10
+          exit 1
 
       - name: Merge validated exact head
         if: steps.diff.outputs.changed == 'true'

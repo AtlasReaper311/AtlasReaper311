@@ -12,9 +12,11 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  # Must run on automation/profile-readme-refresh-* PRs. Skipping those jobs
+  # leaves the workflow as action_required, so the ruleset-required check
+  # "Profile README validation" never lands on the PR and merge stays blocked.
   profile-validation:
     name: Profile README validation
-    if: ${{ !startsWith(github.head_ref, 'automation/profile-readme-refresh-') }}
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
