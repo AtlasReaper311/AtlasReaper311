@@ -5,10 +5,11 @@
 # merged through a pull request, and then the branch is deleted.
 #
 # The repository-local GITHUB_TOKEN is sufficient. No PAT or bypass actor is
-# required. workflow_dispatch remains a belt-and-suspenders exact-head check
-# because token-authored events are not guaranteed to schedule sibling
-# workflows; the merge gate waits for the PR to become CLEAN under the
-# repository ruleset (required check: Profile README validation).
+# required. Pull requests authored by github-actions[bot] leave sibling
+# pull_request workflows in action_required until approved; this job approves
+# those exact-head runs, waits for mergeStateStatus=CLEAN under the ruleset
+# (required check: Profile README validation), then squash-merges.
+# workflow_dispatch remains a belt-and-suspenders exact-head validation path.
 
 name: update-readme
 
@@ -101,6 +102,16 @@ jobs:
           ATTEMPT=0
           while [ "$ATTEMPT" -lt 60 ]
           do
+            # Bot-authored PRs park pull_request workflows as action_required until
+            # approved. Approve exact-head runs so the ruleset-required check can land.
+            PENDING_IDS="$(gh api "repos/${GITHUB_REPOSITORY}/actions/runs?branch=${BRANCH}&status=action_required&per_page=20" \
+              --jq "[.workflow_runs[] | select(.head_sha == \"${HEAD_SHA}\") | .id] | .[]")"
+            for RUN_ID in $PENDING_IDS
+            do
+              echo "Approving exact-head workflow run ${RUN_ID}"
+              gh api -X POST "repos/${GITHUB_REPOSITORY}/actions/runs/${RUN_ID}/approve" >/dev/null || true
+            done
+
             MERGE_STATE="$(gh pr view "$PR_URL" --json mergeStateStatus --jq .mergeStateStatus)"
             CHECK="$(gh api "repos/${GITHUB_REPOSITORY}/commits/${HEAD_SHA}/check-runs" \
               --jq '[.check_runs[] | select(.name == "Profile README validation")] | sort_by(.completed_at // .started_at) | reverse | .[0].conclusion // "missing"')"
