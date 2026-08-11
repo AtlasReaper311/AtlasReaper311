@@ -10,13 +10,13 @@
 <!-- ATLAS:LIVE:START -->
 ```text
 atlas@SPECULAR-CORE:~$ status
-[deploy]   ● operational · a3bd7d9 · 2026-08-11 08:25 UTC
-[estate]   33 governed public repos
+[deploy]   ● operational · f41b099 · 2026-08-11 18:22 UTC
+[estate]   34 governed public repos
 [writing]  W-07 · Atlas Lab
 atlas@SPECULAR-CORE:~$ _
 ```
 
-![estate: 33 repos](https://img.shields.io/badge/estate-33_repos-f5a623?style=flat-square&labelColor=0a0a0f) ![deploy: operational](https://img.shields.io/badge/deploy-operational-4ade80?style=flat-square&labelColor=0a0a0f) [![writing: W-07](https://img.shields.io/badge/writing-W--07-e8e8e0?style=flat-square&labelColor=0a0a0f)](https://atlas-systems.uk/writing/atlas-lab-observability/)
+![estate: 34 repos](https://img.shields.io/badge/estate-34_repos-f5a623?style=flat-square&labelColor=0a0a0f) ![deploy: operational](https://img.shields.io/badge/deploy-operational-4ade80?style=flat-square&labelColor=0a0a0f) [![writing: W-07](https://img.shields.io/badge/writing-W--07-e8e8e0?style=flat-square&labelColor=0a0a0f)](https://atlas-systems.uk/writing/atlas-lab-observability/)
 
 <sub>governed estate + live publish state · refreshes every 6 hours · updates through a validated pull request</sub>
 <!-- ATLAS:LIVE:END -->
