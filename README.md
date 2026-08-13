@@ -10,7 +10,7 @@
 <!-- ATLAS:LIVE:START -->
 ```text
 atlas@SPECULAR-CORE:~$ status
-[deploy]   ● operational · 5d3e428 · 2026-08-13 13:37 UTC
+[deploy]   ● operational · 08a8692 · 2026-08-13 18:42 UTC
 [estate]   34 governed public repos
 [writing]  W-07 · Atlas Lab
 atlas@SPECULAR-CORE:~$ _
