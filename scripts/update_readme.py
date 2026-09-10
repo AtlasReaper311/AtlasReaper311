@@ -50,17 +50,6 @@ PROJECTION_SCHEMA = "atlas-public-repository-classifications/projection/v1"
 PROJECTION_AUTHORITY = "AtlasReaper311/atlas-infra"
 
 
-STATIC_REPLACEMENTS = (
-    (
-        "## Public repositories",
-        "## Selected public repositories",
-    ),
-    (
-        "The public estate map lives in [`atlas-api-public/data/estate.manifest.json`](https://github.com/AtlasReaper311/atlas-api-public/blob/main/data/estate.manifest.json). The public registry shows approved live Workers; the manifest describes the intentionally published architecture. Repository visibility is not inferred from account membership.",
-        "The authoritative public repository classification lives in [`atlas-infra/policy/public-repository-classifications.json`](https://github.com/AtlasReaper311/atlas-infra/blob/main/policy/public-repository-classifications.json). Runtime topology and presentation live in [`atlas-api-public/data/estate.manifest.json`](https://github.com/AtlasReaper311/atlas-api-public/blob/main/data/estate.manifest.json). They are separate contracts: repository governance is not inferred from topology, repository visibility, or account membership.",
-    ),
-)
-
 STATUS_WORDS = {
     "success": ("operational", "4ade80"),
     "failure": ("failing", "e24b4a"),
@@ -295,20 +284,6 @@ def render_block(projection, deploy, writing_index_html: str | None) -> str:
     )
 
 
-def apply_static_accuracy_corrections(readme_text: str) -> str:
-    """Apply the two profile prose corrections that must not drift silently."""
-    updated = readme_text
-    for old, new in STATIC_REPLACEMENTS:
-        if old in updated:
-            updated = updated.replace(old, new, 1)
-            continue
-        if new not in updated:
-            raise SystemExit(
-                "error: profile static accuracy anchor drifted; inspect README before refreshing"
-            )
-    return updated
-
-
 def splice(readme_text: str, block: str) -> str:
     if START_MARKER not in readme_text or END_MARKER not in readme_text:
         raise SystemExit(
@@ -350,7 +325,7 @@ def main() -> int:
         return 0
 
     existing = README_PATH.read_text(encoding="utf-8")
-    updated = apply_static_accuracy_corrections(splice(existing, block))
+    updated = splice(existing, block)
 
     if updated == existing:
         print("unchanged: rendered block matches README, nothing to commit")

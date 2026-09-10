@@ -25,7 +25,7 @@ atlas@SPECULAR-CORE:~$ _
 
 # Atlas Reaper
 
-**audio systems · local AI infrastructure · devops**
+**local AI · automation · infrastructure · real-time audio**
 
 [![Site](https://img.shields.io/badge/atlas--systems.uk-live-f5a623?style=flat-square&labelColor=0a0a0f)](https://atlas-systems.uk)
 [![Map](https://img.shields.io/badge/system%20map-live%20architecture-f5a623?style=flat-square&labelColor=0a0a0f)](https://atlas-systems.uk/lab/#system-map)
@@ -37,22 +37,23 @@ atlas@SPECULAR-CORE:~$ _
 
 ```console
 atlas@SPECULAR-CORE:~$ whoami
-atlas-reaper  // local AI · audio systems · deployment infrastructure
+atlas-reaper  // local AI · automation · infrastructure · real-time audio
 ```
 
 ---
 
 ## The architecture
 
-I build at the intersection of audio systems, local AI, and deployment infrastructure. The three share one core problem: making complex, dynamic systems behave predictably under pressure.
+I build and operate Atlas Systems, a technical estate spanning local AI, automation, infrastructure, and real-time audio systems. The repositories below are the source and reusable engineering surface behind the public site.
 
-Final year at Abertay University, Saltire Scholar. Building Atlas Systems before I graduate. The public repositories below are the source and reusable engineering surface behind [atlas-systems.uk](https://atlas-systems.uk). The public Worker registry is fail-closed: only explicitly approved public services are documented and rendered by the site. Internal owner-operated systems remain outside the public topology while retaining their own CI and governance.
+Final-year Game Development student at Abertay University and 2026 Saltire Scholar. Atlas Systems is my independent technical portfolio and engineering estate behind [atlas-systems.uk](https://atlas-systems.uk). The public Worker registry is fail-closed: only explicitly approved public services are documented and rendered by the site. Internal owner-operated systems remain outside the public topology while retaining their own CI and governance.
 
 ```text
 P-01  Live domain        atlas-systems.uk, a deployed technical environment     [active]
 P-02  GitHub library     Modular kits and Logic Lego components                 [building]
-P-03  DevOps core        Docker · GitHub Actions · AWS Cloud Practitioner       [active]
-P-04  Honours project    LLM integration with UE5 audio systems                 [planned]
+P-03  DevOps core        Docker · GitHub Actions · AWS infrastructure            [active]
+P-04  Applied Local AI   Local-model evaluation through interactive, game, and    [active]
+                         real-time system experiments
 P-05  Technical writing  Build logs and case studies on the domain              [active]
 ```
 
@@ -72,72 +73,41 @@ P-05  Technical writing  Build logs and case studies on the domain              
 | Domain | Tools |
 |---|---|
 | Languages | Python · C++ · JavaScript · HTML/CSS |
-| Game dev | Unreal Engine 5 · MetaSounds · Blueprints |
-| AI/ML | RAG pipelines · local LLMs (Ollama) · ChromaDB · Open WebUI |
-| Infrastructure | Docker · Cloudflare Workers · Cloudflare Pages · GitHub Actions |
-| In progress | AWS · environment promotion per Worker |
+| Interactive systems | Unreal Engine 5 · MetaSounds · Blueprints · Max/MSP |
+| Local AI | llama.cpp · Ollama · RAG · ChromaDB · retrieval · memory · model evaluation |
+| Infrastructure | Docker · WSL2 · Cloudflare Workers · Cloudflare Pages · GitHub Actions · AWS |
+| Assurance | Observability · CI/CD · recovery · deterministic automation |
 
 ---
 
-## Selected public repositories
+## Start here
 
-The authoritative public repository classification lives in [`atlas-infra/policy/public-repository-classifications.json`](https://github.com/AtlasReaper311/atlas-infra/blob/main/policy/public-repository-classifications.json). Runtime topology and presentation live in [`atlas-api-public/data/estate.manifest.json`](https://github.com/AtlasReaper311/atlas-api-public/blob/main/data/estate.manifest.json). They are separate contracts: repository governance is not inferred from topology, repository visibility, or account membership.
+These six repositories are the clearest entry points into the Atlas Systems engineering surface.
 
-### Production infrastructure
-
-| Repo | Layer | What it does |
+| Repository | Domain | Why start here |
 |---|---|---|
-| [`atlas-systems`](https://github.com/AtlasReaper311/atlas-systems) | frontend | Hand-built public site and Lab surface |
-| [`status`](https://github.com/AtlasReaper311/status) | frontend | Live public status surface |
-| [`atlas-doc-viewer`](https://github.com/AtlasReaper311/atlas-doc-viewer) | frontend | Cross-device public document viewer |
-| [`atlas-api-public`](https://github.com/AtlasReaper311/atlas-api-public) | public API | Versioned public API and declared public topology |
-| [`atlas-api-index`](https://github.com/AtlasReaper311/atlas-api-index) | registry | Fail-closed public Worker metadata registry |
-| [`atlas-notify`](https://github.com/AtlasReaper311/atlas-notify) | event bus | Central operational event router with a sanitized public event projection |
-| [`github-pulse`](https://github.com/AtlasReaper311/github-pulse) | data layer | GitHub activity proxy with public detail and anonymous aggregate activity |
-| [`site-pulse`](https://github.com/AtlasReaper311/site-pulse) | data layer | Cached Cloudflare Analytics projection |
-| [`deploy-watch`](https://github.com/AtlasReaper311/deploy-watch) | data layer | Public Pages deployment outcome monitor |
-| [`atlas-blackbox`](https://github.com/AtlasReaper311/atlas-blackbox) | observability | Incident evidence recorder |
-| [`atlas-dora`](https://github.com/AtlasReaper311/atlas-dora) | observability | Aggregate DORA and release-reliability metrics |
+| [`atlas-systems`](https://github.com/AtlasReaper311/atlas-systems) | public interface | The public site and Lab surface for Atlas Systems |
+| [`atlas-infra`](https://github.com/AtlasReaper311/atlas-infra) | governance and operations | Policy, reusable workflows, assurance, recovery, and runbooks |
+| [`atlas-api-public`](https://github.com/AtlasReaper311/atlas-api-public) | public API | Versioned API contracts and declared public topology |
+| [`atlas-corpus`](https://github.com/AtlasReaper311/atlas-corpus) | local AI and retrieval | Semantic search over public estate source and published material |
+| [`specular-telemetry`](https://github.com/AtlasReaper311/specular-telemetry) | observability | Bounded workstation telemetry with a public edge projection |
+| [`atlas-gardener`](https://github.com/AtlasReaper311/atlas-gardener) | bounded automation | Estate conformance remediation proposals |
 
-### Local AI and edge
-
-| Repo | Layer | What it does |
-|---|---|---|
-| [`specular-telemetry`](https://github.com/AtlasReaper311/specular-telemetry) | telemetry | Bounded workstation telemetry through a public edge projection |
-| [`specular-sonify`](https://github.com/AtlasReaper311/specular-sonify) | audio | Telemetry-derived sonification frames |
-| [`specular-sentinel`](https://github.com/AtlasReaper311/specular-sentinel) | observability | Local infrastructure health observer |
-| [`atlas-corpus`](https://github.com/AtlasReaper311/atlas-corpus) | RAG | Semantic search over public estate source and published material |
-| [`ramone-edge`](https://github.com/AtlasReaper311/ramone-edge) | edge | Bounded public gateway to local AI services |
-| [`ramone-memory`](https://github.com/AtlasReaper311/ramone-memory) | local AI | Ollama-compatible long-term memory layer |
-| [`ramone-voice-trigger`](https://github.com/AtlasReaper311/ramone-voice-trigger) | automation | Authenticated allowlisted workflow dispatch |
-
-### DevOps and reusable kits
-
-| Repo | Layer | What it does |
-|---|---|---|
-| [`atlas-infra`](https://github.com/AtlasReaper311/atlas-infra) | CI/CD | Reusable workflows, public runtime contracts, policy and runbooks |
-| [`atlas-bootstrap`](https://github.com/AtlasReaper311/atlas-bootstrap) | recovery | Cross-machine reconstruction automation |
-| [`atlas-journey-watch`](https://github.com/AtlasReaper311/atlas-journey-watch) | assurance | Synthetic journeys across public surfaces |
-| [`atlas-dep-audit`](https://github.com/AtlasReaper311/atlas-dep-audit) | assurance | SBOM, OSV, action pin and provenance audit |
-| [`atlas-resource-audit`](https://github.com/AtlasReaper311/atlas-resource-audit) | assurance | Read-only Cloudflare resource reconciliation |
-| [`atlas-gardener`](https://github.com/AtlasReaper311/atlas-gardener) | tooling | Bounded estate conformance remediation proposals |
-| [`atlas-badges`](https://github.com/AtlasReaper311/atlas-badges) | tooling | Evidence-backed engineering concept badges |
-| [`worker-meta-kit`](https://github.com/AtlasReaper311/worker-meta-kit) | kit | Shared Worker metadata convention |
-| [`atlas-kit-python-rag`](https://github.com/AtlasReaper311/atlas-kit-python-rag) | library | Reusable Python RAG package |
-| [`ollama-rag-kit`](https://github.com/AtlasReaper311/ollama-rag-kit) | kit | Local Docker, FastAPI and Chroma RAG starter |
+The full governed public repository set is defined by [`atlas-infra/policy/public-repository-classifications.json`](https://github.com/AtlasReaper311/atlas-infra/blob/main/policy/public-repository-classifications.json). Runtime topology remains a separate contract in [`atlas-api-public/data/estate.manifest.json`](https://github.com/AtlasReaper311/atlas-api-public/blob/main/data/estate.manifest.json). GitHub visibility, ADR-0004 scope, `public_surface`, and projection membership are distinct signals.
 
 ---
 
-## Case studies
+## Selected engineering records
 
 Long-form build logs are published at [atlas-systems.uk/writing](https://atlas-systems.uk/writing). Each documents architecture, constraints, failures, and the reasoning behind the final design.
 
-| Project | What it is |
+| Record | What it is |
 |---|---|
-| [SPECULAR-CORE](https://atlas-systems.uk/writing/overclocking-specular-core/) | A full overclocking and tuning pass with measured stability validation |
-| [Ramone](https://atlas-systems.uk/writing/ramone-local-ai-system/) | Local AI node with Ollama, Open WebUI and reproducible infrastructure |
-| [SlamPunk](https://atlas-systems.uk/writing/slampunk-dynamic-mix-engine/) | A 15-stem dynamic mix engine for a competitive arena game |
-| [SONIN](https://atlas-systems.uk/writing/sonin-generative-system/) | An autonomous Max/MSP instrument that composes evolving music and visuals |
+| [W-08 SPECULAR-CORE: Architectural Recovery](https://atlas-systems.uk/writing/specular-core-architectural-recovery/) | Architectural recovery of the public technical estate |
+| [W-06 Atlas Systems CI/CD](https://atlas-systems.uk/writing/atlas-systems-cicd-pipeline/) | CI/CD design, evidence, and controlled delivery |
+| [W-03 Ramone local AI system](https://atlas-systems.uk/writing/ramone-local-ai-system/) | Local AI services with reproducible infrastructure |
+| [W-02 SlamPunk dynamic mix engine](https://atlas-systems.uk/writing/slampunk-dynamic-mix-engine/) | A dynamic mix engine for a competitive arena game |
+| [W-01 SONIN generative system](https://atlas-systems.uk/writing/sonin-generative-system/) | An autonomous Max/MSP instrument for evolving music and visuals |
 
 ---
 

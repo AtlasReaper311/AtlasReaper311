@@ -44,32 +44,45 @@ class UpdateReadmeTests(unittest.TestCase):
         self.assertNotIn("commits in the last 90 days", block)
         self.assertNotIn("writing/manifest.json", block)
 
-    def test_static_accuracy_corrections_are_idempotent(self):
-        old_heading = "## Public repositories"
-        old_paragraph = (
-            "The public estate map lives in [`atlas-api-public/data/estate.manifest.json`]"
-            "(https://github.com/AtlasReaper311/atlas-api-public/blob/main/data/estate.manifest.json). "
-            "The public registry shows approved live Workers; the manifest describes the intentionally "
-            "published architecture. Repository visibility is not inferred from account membership."
+    def test_static_prose_is_not_rewritten_by_updater(self):
+        original = (
+            "before\n## Public repositories\n"
+            "<!-- ATLAS:LIVE:START -->\nold\n<!-- ATLAS:LIVE:END -->\n"
+            "after\n"
         )
-        source = old_heading + "\n\n" + old_paragraph + "\n"
-        corrected = update_readme.apply_static_accuracy_corrections(source)
-        self.assertIn("## Selected public repositories", corrected)
-        self.assertIn("atlas-infra/policy/public-repository-classifications.json", corrected)
-        self.assertNotIn("The public estate map lives", corrected)
-        self.assertEqual(
-            update_readme.apply_static_accuracy_corrections(corrected),
-            corrected,
-        )
-
-    def test_splice_changes_only_live_region(self):
-        original = "before\n<!-- ATLAS:LIVE:START -->\nold\n<!-- ATLAS:LIVE:END -->\nafter\n"
         block = "<!-- ATLAS:LIVE:START -->\nnew\n<!-- ATLAS:LIVE:END -->"
         updated = update_readme.splice(original, block)
         self.assertEqual(
             updated,
-            "before\n<!-- ATLAS:LIVE:START -->\nnew\n<!-- ATLAS:LIVE:END -->\nafter\n",
+            "before\n## Public repositories\n"
+            "<!-- ATLAS:LIVE:START -->\nnew\n<!-- ATLAS:LIVE:END -->\n"
+            "after\n",
         )
+
+    def test_splice_preserves_bytes_outside_live_region(self):
+        prefix = "prefix\n\N{SNOWMAN}\n"
+        suffix = "\n## Static profile prose\nunchanged\n"
+        original = prefix + "<!-- ATLAS:LIVE:START -->\nold\n<!-- ATLAS:LIVE:END -->" + suffix
+        block = "<!-- ATLAS:LIVE:START -->\nnew\n<!-- ATLAS:LIVE:END -->"
+        updated = update_readme.splice(original, block)
+        self.assertTrue(updated.startswith(prefix))
+        self.assertTrue(updated.endswith(suffix))
+
+    def test_render_block_is_deterministic(self):
+        first = update_readme.render_block(
+            update_readme.SAMPLE_PROJECTION,
+            update_readme.SAMPLE_DEPLOY,
+            update_readme.SAMPLE_WRITING_INDEX,
+        )
+        second = update_readme.render_block(
+            update_readme.SAMPLE_PROJECTION,
+            update_readme.SAMPLE_DEPLOY,
+            update_readme.SAMPLE_WRITING_INDEX,
+        )
+        self.assertEqual(first, second)
+
+    def test_migration_static_replacements_are_removed(self):
+        self.assertFalse(hasattr(update_readme, "STATIC_REPLACEMENTS"))
 
 
 if __name__ == "__main__":
