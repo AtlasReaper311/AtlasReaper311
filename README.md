@@ -10,13 +10,13 @@
 <!-- ATLAS:LIVE:START -->
 ```text
 atlas@SPECULAR-CORE:~$ status
-[deploy]   ● operational · 1907245 · 2026-09-23 03:23 UTC
+[deploy]   ● operational · 79efed8 · 2026-09-24 13:59 UTC
 [estate]   35 governed public repos
-[writing]  W-08 · SPECULAR-CORE: Architectural Recovery
+[writing]  W-09 · Building a Private Room-Scale Voice Assistant from Local Parts
 atlas@SPECULAR-CORE:~$ _
 ```
 
-![estate: 35 repos](https://img.shields.io/badge/estate-35_repos-f5a623?style=flat-square&labelColor=0a0a0f) ![deploy: operational](https://img.shields.io/badge/deploy-operational-4ade80?style=flat-square&labelColor=0a0a0f) [![writing: W-08](https://img.shields.io/badge/writing-W--08-e8e8e0?style=flat-square&labelColor=0a0a0f)](https://atlas-systems.uk/writing/specular-core-architectural-recovery/)
+![estate: 35 repos](https://img.shields.io/badge/estate-35_repos-f5a623?style=flat-square&labelColor=0a0a0f) ![deploy: operational](https://img.shields.io/badge/deploy-operational-4ade80?style=flat-square&labelColor=0a0a0f) [![writing: W-09](https://img.shields.io/badge/writing-W--09-e8e8e0?style=flat-square&labelColor=0a0a0f)](https://atlas-systems.uk/writing/ramone-voice-assistant/)
 
 <sub>governed estate + live publish state · refreshes every 6 hours · updates through a validated pull request</sub>
 <!-- ATLAS:LIVE:END -->
