@@ -10,13 +10,13 @@
 <!-- ATLAS:LIVE:START -->
 ```text
 atlas@SPECULAR-CORE:~$ status
-[deploy]   ● operational · acf1acd · 2026-10-21 08:38 UTC
+[deploy]   ● operational · 3cf2983 · 2026-10-29 15:49 UTC
 [estate]   35 governed public repos
-[writing]  W-10 · When the Assistant Reported Work It Had Not Done
+[writing]  W-11 · Building the Atlas Systems Control Plane
 atlas@SPECULAR-CORE:~$ _
 ```
 
-![estate: 35 repos](https://img.shields.io/badge/estate-35_repos-f5a623?style=flat-square&labelColor=0a0a0f) ![deploy: operational](https://img.shields.io/badge/deploy-operational-4ade80?style=flat-square&labelColor=0a0a0f) [![writing: W-10](https://img.shields.io/badge/writing-W--10-e8e8e0?style=flat-square&labelColor=0a0a0f)](https://atlas-systems.uk/writing/ramone-voice-verified-actions/)
+![estate: 35 repos](https://img.shields.io/badge/estate-35_repos-f5a623?style=flat-square&labelColor=0a0a0f) ![deploy: operational](https://img.shields.io/badge/deploy-operational-4ade80?style=flat-square&labelColor=0a0a0f) [![writing: W-11](https://img.shields.io/badge/writing-W--11-e8e8e0?style=flat-square&labelColor=0a0a0f)](https://atlas-systems.uk/writing/atlas-control-plane-waves-0-3/)
 
 <sub>governed estate + live publish state · refreshes every 6 hours · updates through a validated pull request</sub>
 <!-- ATLAS:LIVE:END -->
